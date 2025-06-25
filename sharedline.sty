@@ -1,0 +1,50 @@
+% sharedline.sty
+% A package for typesetting shared lines in dramatic verse.
+%
+% Copyright 2023 by [Your Name]
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+\ProvidesPackage{sharedline}[2023/10/27 v3.1 Simplified shareline interface]
+
+\RequirePackage{xparse}
+
+\makeatletter
+
+% Internal saveboxes and length for measurement.
+\newsavebox{\sl@linebox}
+\newlength{\sl@linelength}
+\newsavebox{\sl@subtractbox}
+\newsavebox{\sl@addbox}
+
+% \shareline{<full text>}
+% STARTER command. Now takes a SINGLE mandatory argument.
+% It typesets its argument and saves its combined width.
+\NewDocumentCommand{\shareline}{m}{%
+  \sbox{\sl@linebox}{#1}%
+  \global\settowidth{\sl@linelength}{\usebox{\sl@linebox}}%
+  #1%
+}
+
+% \linefeed[<intro>]{<verse>}
+% CONTINUATION command. This remains unchanged as it requires the
+% optional argument for its calculation.
+\NewDocumentCommand{\linefeed}{O{} m}{%
+  \sbox{\sl@subtractbox}{#1}%
+  #1%
+  \hspace*{\dimexpr\sl@linelength - \wd\sl@subtractbox\relax}%
+  #2%
+  \sbox{\sl@addbox}{#2}%
+  \global\addtolength{\sl@linelength}{\wd\sl@addbox}%
+}
+
+\makeatother
+
+\endinput
+%%
+%% End of file `sharedline.sty'.
