@@ -22,13 +22,13 @@ work together to solve this problem.
 
 ## Usage
 
-The package provides two commands designed to be used within a `verse` environment.
+The package provides two commands, `\shareline` and `\linefeed`.
 
 ### Core Concept
 
-1.  `sharedline` is intended for use in the `verse` environment.
+1.  `sharedline` works in, but does not depend on, the `verse` environment.
 2. You start a shared line with `\shareline{...}`.
-3.  You use `\linefeed[...]{...}` for all subsequent parts of that same line.
+3.  You use `\linefeed[...]{...}` for all subsequent parts of that same shared line.
 4.  You are responsible for manually adding line breaks (`\\`) after each segment to move to the next physical line.
 
 ---
@@ -82,6 +82,26 @@ The syntax remains clean when no prompts are needed. Simply omit the optional ar
 \begin{verse}
   \shareline{A path of dust and dreams beneath the sun,}\\
   \linefeed{a journey to a star.}\\
+\end{verse}
+```
+
+#### Speaker Prompts on a Separate Line
+
+Regular lines can come between a `\shareline` and its continuing `\linefeed`s.
+Therefore one can do:
+
+```latex
+\begin{verse}
+HORATIO:
+  
+\shareline{Tush, tush, 'twill not appear.}
+  
+BARNARDO:
+  
+\linefeed{Sit down awhile,}\\
+And let us once again assail your ears,\\
+That are so fortified against our story,\\
+What we have two nights seen.
 \end{verse}
 ```
 
