@@ -6,4 +6,15 @@
 *.toc
 *.fdb_latexmk
 *.fls
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.hd
+
+# Generated files
 *.pdf
+*.sty
+*.zip
+

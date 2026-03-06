@@ -1,0 +1,206 @@
+% \iffalse meta-comment
+%
+% This is sharedline.dtx, a documented TeX source file.
+%
+% To get the user documentation, run this file through LaTeX:
+% > pdflatex sharedline.dtx
+% > makeindex -s gind.ist sharedline.idx
+% > pdflatex sharedline.dtx
+%
+% To extract the package file sharedline.sty:
+% > tex sharedline.ins
+%
+% Copyright 2025 by Jacob Smullyan
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\ProvidesFile{sharedline.dtx}
+  [2025/06/26 v1.0 A package for typesetting shared lines in verse]
+\documentclass{ltxdoc}
+\usepackage{parskip}
+\usepackage[T1]{fontenc}
+\usepackage{verse}
+\GetFileInfo{sharedline.dtx}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\title{The \textsf{sharedline} package\thanks{This package is licensed under the LPPL v1.3c or later.}}
+\author{Jacob Smullyan}
+\date{\fileversion, \filedate}
+\begin{document}
+  \DocInput{sharedline.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \changes{v1.0}{2025/06/26}{Initial release}
+%
+% \maketitle
+% \begin{abstract}
+% The \textsf{sharedline} package provides a robust and flexible solution for
+% typesetting shared lines in dramatic verse, such as in the plays of
+% Shakespeare. It allows a single line of verse to be split across multiple
+% speakers while maintaining perfect horizontal alignment, creating the
+% visual effect of a single, continuous line of iambic pentameter.
+% \end{abstract}
+%
+% \tableofcontents
+%
+% \section{Introduction}
+% Typesetting dramatic verse presents a unique challenge: a single metrical
+% line is often shared between two or more characters. Standard use of the
+% \texttt{verse} environment breaks the visual continuity of the line. This
+% package introduces two simple commands, \cs{shareline} and \cs{linefeed},
+% that work together to solve this problem elegantly.
+%
+% The ``starter'' command, \cs{shareline}, typesets the first part of a
+% shared line and saves its width. The ``continuation'' command,
+% \cs{linefeed}, is then used for all subsequent parts. It typesets an
+% optional introductory text (such as a speaker prompt) at the left margin,
+% then indents the verse text so that it begins at the horizontal position
+% where the previous segment ended. It then adds its own verse width to the
+% running total, so a line can be split any number of times.
+%
+% The package works naturally within the \texttt{verse} environment but does
+% not depend on it. The user retains full control over line breaks, using
+% \texttt{\textbackslash\textbackslash}, \texttt{\textbackslash\textbackslash!},
+% or other standard mechanisms.
+%
+% \section{Installation}
+% To install the package, place the \texttt{sharedline.sty} file in a
+% location where your \TeX\ distribution can find it. For a local
+% installation, this is typically in your \texttt{texmf} tree (e.g.,
+% \texttt{TEXMFHOME/tex/latex/sharedline/}). After moving the file, you may
+% need to refresh your distribution's file database.
+%
+% If you are using this \texttt{.dtx} file, you can extract the package by
+% running the command: \texttt{tex sharedline.ins}
+%
+% \section{Usage}
+% The package provides two commands. They work naturally within the
+% \texttt{verse} environment but do not depend on it.
+%
+% \DescribeMacro{\shareline}
+% \cs{shareline}\marg{full text} \\
+% Starts a shared line. The mandatory argument contains the entire first
+% segment, including any speaker prompt. The command typesets its argument
+% and saves its total horizontal width as the baseline for subsequent
+% indentation. It does not add a line break; you must add one manually
+% (e.g., with \texttt{\textbackslash\textbackslash}).
+%
+% \DescribeMacro{\linefeed}
+% \cs{linefeed}\oarg{intro}\marg{verse} \\
+% Continues a shared line. Used for all subsequent parts (second, third, etc.).
+% \begin{itemize}
+%   \item \oarg{intro}: Optional introductory text (e.g., a speaker prompt),
+%   typeset at the left margin.
+%   \item \marg{verse}: The verse text for this segment, indented so that it
+%   begins at the horizontal position where the previous segment ended.
+% \end{itemize}
+% After typesetting, the width of the verse text (not the intro) is added to
+% the running total, so that subsequent \cs{linefeed} calls indent further.
+% Like \cs{shareline}, this command does not add a line break.
+%
+% \subsection{Example: A Two-Way Split}
+% \begin{verbatim}
+% \begin{verse}
+%   \shareline{ANNE: I would I knew thy heart.}\\
+%   \linefeed[GLOUCESTER: ]{'Tis figured in my tongue.}\\
+% \end{verse}
+% \end{verbatim}
+%
+% \subsection{Example: A Three-Way Split}
+% Notice that \cs{linefeed} is used for both the second and third parts. A
+% manual line break is required after each segment except the last.
+% \begin{verbatim}
+% \begin{verse}
+%   \shareline{GUARD 1: Who goes there?}\\
+%   \linefeed[GUARD 2: ]{Speak now, or I swear}\\
+%   \linefeed[GUARD 1: ]{I'll shoot!}\\
+% \end{verse}
+% \end{verbatim}
+%
+% \subsection{Example: Without Speaker Prompts}
+% The syntax remains clean when no prompts are needed. Simply omit the
+% optional argument for \cs{linefeed}.
+% \begin{verbatim}
+% \begin{verse}
+%   \shareline{A path of dust and dreams beneath the sun,}\\
+%   \linefeed{a journey to a star.}\\
+% \end{verse}
+% \end{verbatim}
+%
+% \StopEventually{\PrintChanges\PrintIndex}
+%
+% \section{Implementation}
+% We begin by identifying the package and its dependencies.
+%
+%    \begin{macrocode}
+%<*package>
+\ProvidesPackage{sharedline}[2025/06/26 v1.0]
+
+\RequirePackage{xparse}
+%    \end{macrocode}
+%
+% We use a number of internal lengths and saveboxes. To prevent clashes
+% with user-defined macros or other packages, we use the \verb|@| symbol
+% in their names and wrap the definitions in \cs{makeatletter} and
+% \cs{makeatother}. The prefix \texttt{sl@} is used for ``sharedline''.
+%
+%    \begin{macrocode}
+\makeatletter
+
+\newsavebox{\sl@linebox}
+\newlength{\sl@linelength}
+\newsavebox{\sl@subtractbox}
+\newsavebox{\sl@addbox}
+%    \end{macrocode}
+%
+% \begin{macro}{\shareline}
+% The starter command. It takes a single mandatory argument
+% containing the full text of the first segment, including any speaker prompt.
+% It places the argument into a box to measure its width, saves this width
+% globally into \cs{sl@linelength}, and typesets the argument.
+%    \begin{macrocode}
+\NewDocumentCommand{\shareline}{m}{%
+  \sbox{\sl@linebox}{#1}%
+  \global\settowidth{\sl@linelength}{\usebox{\sl@linebox}}%
+  #1%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\linefeed}
+% The continuation command, used for all subsequent parts of a
+% shared line. It takes an optional intro and a mandatory verse segment.
+% It measures the intro width, typesets the intro, inserts a horizontal space
+% equal to the accumulated length minus the intro width, typesets the verse,
+% and adds the verse width to the running total.
+%    \begin{macrocode}
+\NewDocumentCommand{\linefeed}{O{} m}{%
+  \sbox{\sl@subtractbox}{#1}%
+  #1%
+  \hspace*{\dimexpr\sl@linelength - \wd\sl@subtractbox\relax}%
+  #2%
+  \sbox{\sl@addbox}{#2}%
+  \global\addtolength{\sl@linelength}{\wd\sl@addbox}%
+}
+
+\makeatother
+
+\endinput
+%    \end{macrocode}
+% \end{macro}
+%
+%</package>
+% \Finale
